@@ -896,108 +896,116 @@
 
 
     // =====================================================================
-    // COMPLIANCE MONITOR — pause semua games setiap 60 saat
+    // COMPLIANCE MONITOR — popup every 60 seconds guaranteed
     // =====================================================================
-    const CO_DIRS   = ['UP','DOWN','LEFT','RIGHT'];
-    const CO_SYMBOL = { UP:'▲', DOWN:'▼', LEFT:'◄', RIGHT:'►' };
-    const CO_NAME   = { UP:'UP ▲', DOWN:'DOWN ▼', LEFT:'LEFT ◄', RIGHT:'RIGHT ►' };
-    const CO_INTERVAL = 60; // saat antara setiap compliance check
-    const CO_TIMEOUT  = 10; // saat untuk respond
-    let coTarget = null, coTimerInterval = null, coSchedule = null, coTimeLeft = 0;
-    let coGameWasRunning = false;
-    let coTick = 0; // counter dalam saat
+    const CO_DIRS    = ['UP','DOWN','LEFT','RIGHT'];
+    const CO_SYMBOL  = { UP:'▲', DOWN:'▼', LEFT:'◄', RIGHT:'►' };
+    const CO_NAME    = { UP:'UP ▲', DOWN:'DOWN ▼', LEFT:'LEFT ◄', RIGHT:'RIGHT ►' };
+    const CO_INTERVAL = 60;  // seconds between checks
+    const CO_TIMEOUT  = 10;  // seconds to respond
 
+    let coTarget = null;
+    let coCountdown = null;   // interval for the 10s response timer
+    let coTimeLeft  = 0;
+    let coMaster    = null;   // single master interval, ticks every 1s
+    let coElapsed   = 0;      // counts up to CO_INTERVAL
+
+    // Call once when game starts — runs forever until stopGameFull()
     function coStart() {
         coStop();
-        coTick = 0;
-        coSchedule = setInterval(() => {
-            if(!activeGame || coTarget) return; // skip kalau tiada game atau overlay dah tunjuk
-            coTick++;
-            if(coTick >= CO_INTERVAL) {
-                coTick = 0;
+        coElapsed = 0;
+        coMaster = setInterval(() => {
+            if (!activeGame) return;         // not in a game, skip
+            if (coTarget)    return;         // overlay already showing, freeze count
+            coElapsed++;
+            if (coElapsed >= CO_INTERVAL) {
+                coElapsed = 0;
                 coTrigger();
             }
         }, 1000);
     }
 
     function coStop() {
-        if(coSchedule)      { clearInterval(coSchedule);  coSchedule = null; }
-        if(coTimerInterval) { clearInterval(coTimerInterval); coTimerInterval = null; }
-        coTick = 0;
+        if (coMaster)    { clearInterval(coMaster);    coMaster    = null; }
+        if (coCountdown) { clearInterval(coCountdown); coCountdown = null; }
+        coTarget   = null;
+        coElapsed  = 0;
+        coTimeLeft = 0;
     }
 
     function coTrigger() {
-        if(!activeGame) return;
+        if (!activeGame) return;
         coTarget = CO_DIRS[Math.floor(Math.random() * 4)];
 
-        // Update UI
+        // Update arrow UI
         document.getElementById('co-arrow-symbol').textContent = CO_SYMBOL[coTarget];
         document.getElementById('co-instruction').textContent  = 'PRESS ' + CO_NAME[coTarget] + ' TO CONTINUE';
 
-        // Reset semua key states
+        // Reset d-pad highlights
         ['up','down','left','right'].forEach(d => {
             const el = document.getElementById('cok-' + d);
-            if(el) el.className = 'co-key';
+            if (el) el.className = 'co-key';
         });
 
-        // Countdown
+        // Countdown bar
         coTimeLeft = CO_TIMEOUT;
         document.getElementById('co-timer-fill').style.width = '100%';
         document.getElementById('co-timer-label').textContent = CO_TIMEOUT + 's';
 
-        // Pause game loops
-        coGameWasRunning = !!gameLoop || activeGame === 'SNAKE' || activeGame === 'TETRIS' || activeGame === 'CHESS';
-        if(gameLoop)    { clearInterval(gameLoop); gameLoop = null; }
-        if(snakeTimer)  { clearTimeout(snakeTimer); snakeTimer = null; }
-        if(tetrisTimer) { clearTimeout(tetrisTimer); tetrisTimer = null; }
-        if(chessAnimLoop){ cancelAnimationFrame(chessAnimLoop); chessAnimLoop = null; }
+        // Pause all game loops
+        gamePausedForOverlay = true;
+        if (gameLoop)     { clearInterval(gameLoop);              gameLoop     = null; }
+        if (snakeTimer)   { clearTimeout(snakeTimer);             snakeTimer   = null; }
+        if (tetrisTimer)  { clearTimeout(tetrisTimer);            tetrisTimer  = null; }
+        if (chessAnimLoop){ cancelAnimationFrame(chessAnimLoop);  chessAnimLoop = null; }
 
         document.getElementById('compliance-overlay').classList.add('show');
         SFX.bossWarning();
 
-        coTimerInterval = setInterval(() => {
+        // 10s countdown
+        if (coCountdown) clearInterval(coCountdown);
+        coCountdown = setInterval(() => {
             coTimeLeft -= 0.1;
             const pct = Math.max(0, coTimeLeft / CO_TIMEOUT * 100);
-            document.getElementById('co-timer-fill').style.width = pct + '%';
+            document.getElementById('co-timer-fill').style.width  = pct + '%';
             document.getElementById('co-timer-label').textContent = Math.ceil(coTimeLeft) + 's';
-            if(coTimeLeft <= 0) { coTimerDone(); }
+            if (coTimeLeft <= 0) {
+                clearInterval(coCountdown); coCountdown = null;
+                coDismiss();
+            }
         }, 100);
     }
 
-    function coTimerDone() {
-        if(coTimerInterval) { clearInterval(coTimerInterval); coTimerInterval = null; }
-        coDismiss();
-    }
-
     function coPress(dir, e) {
-        if(e) e.preventDefault();
-        if(!coTarget) return;
+        if (e) e.preventDefault();
+        if (!coTarget) return;
         const keyEl = document.getElementById('cok-' + dir.toLowerCase());
-        if(dir === coTarget) {
-            if(keyEl) { keyEl.className = 'co-key correct'; }
+        if (dir === coTarget) {
+            if (keyEl) keyEl.className = 'co-key correct';
             SFX.levelUp();
-            if(coTimerInterval) { clearInterval(coTimerInterval); coTimerInterval = null; }
+            if (coCountdown) { clearInterval(coCountdown); coCountdown = null; }
             setTimeout(coDismiss, 400);
         } else {
-            if(keyEl) {
+            if (keyEl) {
                 keyEl.className = 'co-key wrong';
-                setTimeout(() => { if(keyEl) keyEl.className = 'co-key'; }, 400);
+                setTimeout(() => { if (keyEl) keyEl.className = 'co-key'; }, 400);
             }
             SFX.playerHit();
         }
     }
 
     function coDismiss() {
-        if(coTimerInterval) { clearInterval(coTimerInterval); coTimerInterval = null; }
-        coTarget = null;
-        coTick = 0; // reset countdown — 1 minit dari sekarang semula
+        if (coCountdown) { clearInterval(coCountdown); coCountdown = null; }
+        coTarget  = null;
+        coElapsed = 0;   // reset — next popup exactly 60s from now
+        gamePausedForOverlay = false;
         document.getElementById('compliance-overlay').classList.remove('show');
 
-        // Resume game yang sedang berjalan
-        if(activeGame === 'PONG' || activeGame === 'SPACE' || activeGame === 'FLAPPY') loopGame();
-        else if(activeGame === 'SNAKE') startSnakeLoop();
-        else if(activeGame === 'TETRIS') runTetrisLoop();
-        else if(activeGame === 'CHESS') drawChess();
+        // Resume game
+        if (activeGame === 'PONG' || activeGame === 'SPACE' || activeGame === 'FLAPPY') loopGame();
+        else if (activeGame === 'SNAKE')  startSnakeLoop();
+        else if (activeGame === 'TETRIS') runTetrisLoop();
+        else if (activeGame === 'CHESS')  drawChess();
     }
 
 
@@ -1811,7 +1819,7 @@
         timerTapTimer = setTimeout(() => { timerTapCount = 0; }, 800);
         if(timerTapCount >= 3) {
             timerTapCount = 0;
-            if(activeGame && !coTarget) { coTick = 0; coTrigger(); }
+            if(activeGame && !coTarget) { coElapsed = 0; coTrigger(); }
         }
     });
 
