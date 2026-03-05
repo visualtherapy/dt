@@ -126,7 +126,21 @@
         
         .slider-label { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 600;}
         .val-disp { font-family: 'Orbitron', monospace; font-weight: 700; color: var(--green); font-variant-numeric: tabular-nums; }
-        input[type=range] { width: 100%; cursor: pointer; accent-color: var(--green); }
+        input[type=range] {
+            width: 100%; cursor: pointer;
+            -webkit-appearance: none; appearance: none;
+            height: 5px; border-radius: 3px;
+            background: linear-gradient(to right, #444 0%, var(--green) 100%);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 18px; height: 18px;
+            border-radius: 50%; background: #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5); cursor: pointer;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 18px; height: 18px; border-radius: 50%;
+            background: #fff; border: none; box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
         
         .eye-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
         .eye-red { background: rgba(255,34,68,0.15); color: var(--red-eye); border: 1px solid rgba(255,34,68,0.3); }
@@ -187,7 +201,7 @@
             background: radial-gradient(circle, var(--red-eye), #aa0011);
             box-shadow: 0 0 20px rgba(255,34,68,0.4); flex-shrink: 0;
             font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 800; color: #fff; letter-spacing: 0.05em;
-            transition: transform 0.1s; touch-action: manipulation;
+            will-change: transform; touch-action: manipulation;
         }
         #fire-btn:active { transform: scale(0.92); box-shadow: 0 0 30px rgba(255,34,68,0.7); }
 
@@ -341,6 +355,25 @@
             touch-action: manipulation; transition: all 0.15s;
         }
         .diff-start-btn:active { transform: scale(0.97); }
+        /* ── INLINE SATURATION SLIDER ── */
+        .sat-row { display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 12px; }
+        .sat-row:last-child { margin-bottom: 0; }
+        .sat-slider {
+            flex: 1; -webkit-appearance: none; appearance: none;
+            height: 5px; border-radius: 3px;
+            background: linear-gradient(to right, #444 0%, var(--green) 100%);
+            cursor: pointer; min-width: 0;
+        }
+        .sat-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px;
+            border-radius: 50%; background: #fff;
+            box-shadow: 0 0 4px rgba(0,0,0,0.5); cursor: pointer;
+        }
+        .sat-slider::-moz-range-thumb {
+            width: 16px; height: 16px; border-radius: 50%;
+            background: #fff; border: none; box-shadow: 0 0 4px rgba(0,0,0,0.5);
+        }
+        .sat-val { font-family: 'Orbitron', monospace; font-size: 0.65rem; font-weight: 700; color: var(--green); min-width: 30px; text-align: right; }
     </style>
 </head>
 <body>
@@ -403,12 +436,18 @@
 
         <div class="slider-group">
             <div class="slider-group-title">1. Eye Colors</div>
-            <div class="config-row">
-                <label><span class="eye-badge eye-red">Left (Red)</span></label>
+
+            <div class="sat-row">
+                <span class="eye-badge eye-red" style="flex-shrink:0;">Left (Red)</span>
+                <input type="range" class="sat-slider" id="sliderSatLeft" min="0" max="100" value="100" oninput="updateConfig(); throttleTick();">
+                <span id="dispSatLeft" class="sat-val">100%</span>
                 <input type="color" id="pickerLeft" value="#ff0000" oninput="updateConfig(); throttleTick();">
             </div>
-            <div class="config-row" style="margin-bottom:0;">
-                <label><span class="eye-badge eye-cyan">Right (Cyan)</span></label>
+
+            <div class="sat-row">
+                <span class="eye-badge eye-cyan" style="flex-shrink:0;">Right (Cyan)</span>
+                <input type="range" class="sat-slider" id="sliderSatRight" min="0" max="100" value="100" oninput="updateConfig(); throttleTick();">
+                <span id="dispSatRight" class="sat-val">100%</span>
                 <input type="color" id="pickerRight" value="#00ffff" oninput="updateConfig(); throttleTick();">
             </div>
         </div>
@@ -419,7 +458,7 @@
                 <span>Luminance Level</span>
                 <span id="dispLum" class="val-disp">100</span>
             </div>
-            <input type="range" id="sliderLum" min="20" max="255" value="100" oninput="updateConfig(); throttleTick();">
+            <input type="range" id="sliderLum" min="1" max="255" value="100" oninput="updateConfig(); throttleTick();" style="margin: 8px 0;">
         </div>
 
         <div class="slider-group">
@@ -428,12 +467,12 @@
                 <span style="color:var(--red-eye);">Left Eye (Red)</span>
                 <span id="dispIndLeft" class="val-disp">100%</span>
             </div>
-            <input type="range" id="sliderIndLeft" min="0" max="100" value="100" oninput="updateConfig(); throttleTick();" style="margin-bottom:16px;">
+            <input type="range" id="sliderIndLeft" min="0" max="100" value="100" oninput="updateConfig(); throttleTick();" style="margin: 8px 0 24px;">
             <div class="slider-label">
                 <span style="color:var(--cyan-eye);">Right Eye (Cyan)</span>
                 <span id="dispIndRight" class="val-disp">100%</span>
             </div>
-            <input type="range" id="sliderIndRight" min="0" max="100" value="100" oninput="updateConfig(); throttleTick();">
+            <input type="range" id="sliderIndRight" min="0" max="100" value="100" oninput="updateConfig(); throttleTick();" style="margin: 8px 0;">
         </div>
 
         <button class="btn btn-primary" onclick="SFX.bleep(); gotoMenu();" style="margin-top:12px;">✅ Save & Continue</button>
@@ -532,7 +571,11 @@
         <div id="snake-joystick" style="display:block; clear:both; padding-top:4px;">
             <div class="joystick-flex">
                 <div id="joystickZone" class="joystick-container"><div id="joystickKnob" class="joystick-knob"></div></div>
-                <button id="fire-btn" onclick="manualAction()" style="display:none;">FIRE</button>
+                <button id="fire-btn" 
+                    ontouchstart="manualAction(); this.style.transform='scale(0.92)'; this.style.boxShadow='0 0 30px rgba(255,34,68,0.7)';" 
+                    ontouchend="this.style.transform=''; this.style.boxShadow='';"
+                    onmousedown="manualAction();"
+                    style="display:none;">FIRE</button>
             </div>
         </div>
         <div id="snake-keypad" style="display:none; clear:both; padding-top:8px;">
@@ -544,7 +587,9 @@
     </div>
 
     <div id="ctrl-flappy" class="control-area">
-        <div class="tap-area">👆 Tap the game screen or press FIRE to flap</div>
+        <div class="tap-area" style="font-size:1rem; padding:22px; color:var(--text); border-color:rgba(0,229,255,0.3);">
+            👆 <strong>Touch the screen to flap</strong>
+        </div>
     </div>
 
     <div id="ctrl-tetris" class="control-area">
@@ -563,7 +608,7 @@
                 <span>Vergence Demand</span>
                 <span id="dispVergence" class="val-disp">0 px</span>
             </div>
-            <input type="range" id="chessVergence" min="-20" max="20" value="0" oninput="updateChessVergence(this.value); throttleTick();">
+            <input type="range" id="chessVergence" min="-20" max="20" value="0" oninput="updateChessVergence(this.value); throttleTick();" style="margin: 8px 0;">
             
             <div style="font-family:'Orbitron',monospace; font-size:0.7rem; color:var(--text-muted); font-weight:700; margin-bottom:4px; margin-top:10px;">ENGINE STRENGTH</div>
             <select id="chessDiff" onchange="aiDepth=parseInt(this.value)">
@@ -908,7 +953,7 @@
     let sessionStartTime = "";
     let isTestMode = false; 
 
-    let appConfig = { leftHex:"#ff0000", rightHex:"#00ffff", targetLum:100, indLeft:100, indRight:100, renderLeft:"rgb(255,0,0)", renderRight:"rgb(0,255,255)", renderBg:"rgb(0,0,0)" };
+    let appConfig = { leftHex:"#ff0000", rightHex:"#00ffff", targetLum:100, indLeft:100, indRight:100, satLeft:100, satRight:100, renderLeft:"rgb(255,0,0)", renderRight:"rgb(0,255,255)", renderBg:"rgb(0,0,0)" };
     let totalSeconds = 0; let totalScore = 0;
     
     // Core Timers
@@ -1001,19 +1046,32 @@
         appConfig.targetLum = parseInt(document.getElementById('sliderLum').value || 100);
         appConfig.indLeft = parseInt(document.getElementById('sliderIndLeft').value || 100);
         appConfig.indRight = parseInt(document.getElementById('sliderIndRight').value || 100);
+        appConfig.satLeft = parseInt(document.getElementById('sliderSatLeft').value || 100);
+        appConfig.satRight = parseInt(document.getElementById('sliderSatRight').value || 100);
         
         document.getElementById('dispLum').innerText = appConfig.targetLum;
         document.getElementById('dispIndLeft').innerText = appConfig.indLeft + "%";
         document.getElementById('dispIndRight').innerText = appConfig.indRight + "%";
+        document.getElementById('dispSatLeft').innerText = appConfig.satLeft + "%";
+        document.getElementById('dispSatRight').innerText = appConfig.satRight + "%";
 
         const lR = hexToRgb(appConfig.leftHex); const rR = hexToRgb(appConfig.rightHex);
-        let lS = getLum(lR.r,lR.g,lR.b) > 0 ? appConfig.targetLum / getLum(lR.r,lR.g,lR.b) : 0;
-        let rS = getLum(rR.r,rR.g,rR.b) > 0 ? appConfig.targetLum / getLum(rR.r,rR.g,rR.b) : 0;
+
+        function applySat(r, g, b, sat) {
+            const grey = 0.299*r + 0.587*g + 0.114*b;
+            const s = sat / 100;
+            return { r: grey + (r - grey) * s, g: grey + (g - grey) * s, b: grey + (b - grey) * s };
+        }
+        const lSat = applySat(lR.r, lR.g, lR.b, appConfig.satLeft);
+        const rSat = applySat(rR.r, rR.g, rR.b, appConfig.satRight);
+
+        let lS = getLum(lSat.r,lSat.g,lSat.b) > 0 ? appConfig.targetLum / getLum(lSat.r,lSat.g,lSat.b) : 0;
+        let rS = getLum(rSat.r,rSat.g,rSat.b) > 0 ? appConfig.targetLum / getLum(rSat.r,rSat.g,rSat.b) : 0;
         
         lS = lS * (appConfig.indLeft / 100); rS = rS * (appConfig.indRight / 100);
         
-        const lfR = Math.min(255, Math.round(lR.r*lS)); const lfG = Math.min(255, Math.round(lR.g*lS)); const lfB = Math.min(255, Math.round(lR.b*lS));
-        const rfR = Math.min(255, Math.round(rR.r*rS)); const rfG = Math.min(255, Math.round(rR.g*rS)); const rfB = Math.min(255, Math.round(rR.b*rS));
+        const lfR = Math.min(255, Math.round(lSat.r*lS)); const lfG = Math.min(255, Math.round(lSat.g*lS)); const lfB = Math.min(255, Math.round(lSat.b*lS));
+        const rfR = Math.min(255, Math.round(rSat.r*rS)); const rfG = Math.min(255, Math.round(rSat.g*rS)); const rfB = Math.min(255, Math.round(rSat.b*rS));
         
         appConfig.renderLeft = `rgb(${lfR},${lfG},${lfB})`; appConfig.renderRight = `rgb(${rfR},${rfG},${rfB})`; appConfig.renderBg = `rgb(0,0,0)`;
         document.documentElement.style.setProperty('--bg-dynamic', appConfig.renderBg);
@@ -1075,10 +1133,7 @@
         if(activeGame==='PONG') document.getElementById('ctrl-slider').classList.add('show');
         if(activeGame==='TETRIS') document.getElementById('ctrl-tetris').classList.add('show');
         if(activeGame==='FLAPPY'){
-            document.getElementById('ctrl-snake').classList.add('show'); document.getElementById('snake-keypad').style.display='none';
-            document.getElementById('snake-joystick').style.display='block'; document.getElementById('joystickZone').style.visibility='hidden'; 
-            document.getElementById('btn-ctrl-switch').style.display='none'; document.getElementById('fire-btn').style.display='block';
-            document.getElementById('btn-auto-fire').style.display='none'; document.getElementById('fire-btn').textContent = "FLAP";
+            document.getElementById('ctrl-flappy').classList.add('show');
         } else if (activeGame==='SPACE') {
             document.getElementById('joystickZone').style.visibility='visible'; document.getElementById('fire-btn').textContent = "FIRE";
         }
