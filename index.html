@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#03050a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cikgu Mata">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <title>Cikgu Mata — Vision Therapy Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -44,13 +51,6 @@
             overflow-x: hidden;
             overflow-y: auto;
             transition: background-color 0.15s;
-        }
-
-        /* ── MOVING STARS BACKGROUND ── */
-        #bgCanvas {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 0; pointer-events: none;
         }
 
         ::-webkit-scrollbar { width: 6px; }
@@ -174,8 +174,8 @@
         input[type=range].game-slider { -webkit-appearance: none; width: 100%; height: 52px; background: var(--surface2); border-radius: 26px; border: 1px solid var(--border); margin-top: 10px; touch-action: none; }
         input[type=range].game-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 64px; height: 48px; border-radius: 24px; background: var(--cyan-eye); cursor: pointer; box-shadow: 0 0 16px rgba(0,229,255,0.3); }
         
-        .dpad-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; max-width: 260px; margin: 0 auto; }
-        .dpad-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-family: 'Orbitron', monospace; font-size: 1.4rem; font-weight:700; padding: 14px 0; touch-action: manipulation; cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center; user-select: none; }
+        .dpad-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; max-width: 300px; margin: 0 auto; }
+        .dpad-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; color: var(--text); font-family: 'Orbitron', monospace; font-size: 1.9rem; font-weight:700; padding: 20px 0; touch-action: manipulation; cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center; user-select: none; min-height: 64px; }
         .dpad-btn:active { background: var(--surface); border-color: var(--cyan-eye); color: var(--cyan-eye); transform: scale(0.94); }
 
         .joystick-flex { display: flex; align-items: center; justify-content: center; gap: 30px; margin-top: 10px; }
@@ -215,11 +215,135 @@
         .social-icon:hover { background: var(--surface2); color: var(--cyan-eye); border-color: var(--cyan-eye); transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,229,255,0.2); }
         .social-icon svg { width: 20px; height: 20px; fill: currentColor; }
         .social-icon img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover;}
+        /* ── COMPLIANCE CHECK OVERLAY ── */
+        #compliance-overlay {
+            position: fixed; inset: 0; background: rgba(3,5,10,0.98);
+            z-index: 9999; display: none; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+            padding: 30px; gap: 0;
+        }
+        #compliance-overlay.show { display: flex; }
+        .co-badge {
+            background: rgba(255,215,0,0.12); border: 1px solid rgba(255,215,0,0.4);
+            border-radius: 20px; padding: 5px 16px; font-family:'Orbitron',monospace;
+            font-size: 0.65rem; font-weight:700; color: var(--yellow);
+            letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px;
+        }
+        .co-title {
+            font-family: 'Orbitron', monospace; font-size: 1.15rem; font-weight: 900;
+            color: var(--text); margin-bottom: 6px; letter-spacing: 0.04em;
+        }
+        .co-sub {
+            font-size: 0.82rem; color: var(--text-muted); margin-bottom: 28px; line-height: 1.6;
+        }
+        .co-arrow-wrap {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: rgba(0,255,136,0.06); border: 2px solid rgba(0,255,136,0.3);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 28px;
+            animation: coRingPulse 1.2s ease-in-out infinite;
+        }
+        @keyframes coRingPulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(0,255,136,0.3), 0 0 20px rgba(0,255,136,0.1); }
+            50% { box-shadow: 0 0 0 12px rgba(0,255,136,0), 0 0 40px rgba(0,255,136,0.2); }
+        }
+        #co-arrow-symbol {
+            font-size: 5.5rem; line-height: 1;
+            color: var(--green);
+            filter: drop-shadow(0 0 16px rgba(0,255,136,0.7));
+            animation: coArrowBounce 0.8s ease-in-out infinite;
+        }
+        @keyframes coArrowBounce {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.18); }
+        }
+        .co-instruction {
+            font-family: 'Orbitron', monospace; font-size: 0.8rem; font-weight: 700;
+            color: var(--text-muted); margin-bottom: 20px; letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .co-dpad {
+            display: grid; grid-template-columns: 72px 72px 72px;
+            grid-template-rows: 72px 72px; gap: 10px;
+            margin-bottom: 24px;
+        }
+        .co-key {
+            background: var(--surface2); border: 2px solid var(--border);
+            border-radius: 14px; font-size: 1.8rem;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); transition: all 0.12s; cursor: pointer;
+            touch-action: manipulation; user-select: none;
+        }
+        .co-key:active, .co-key.pressed { transform: scale(0.91); background: var(--surface); }
+        .co-key.correct {
+            background: rgba(0,255,136,0.2); border-color: var(--green);
+            color: var(--green); box-shadow: 0 0 20px rgba(0,255,136,0.3);
+        }
+        .co-key.wrong {
+            background: rgba(255,34,68,0.15); border-color: var(--red-eye);
+            color: var(--red-eye); animation: coShake 0.3s ease;
+        }
+        @keyframes coShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+        .co-timer-wrap { width: 220px; }
+        .co-timer-label {
+            font-family: 'Orbitron', monospace; font-size: 0.6rem; color: var(--text-muted);
+            font-weight: 700; letter-spacing: 0.1em; text-align: right; margin-bottom: 5px;
+        }
+        .co-timer-bar { width: 100%; height: 6px; background: rgba(255,215,0,0.1); border-radius: 3px; overflow: hidden; }
+        .co-timer-fill { height: 100%; background: var(--yellow); border-radius: 3px; width: 100%; transition: width 0.1s linear; }
+        /* ── DIFFICULTY BOTTOM SHEET ── */
+        #diff-sheet-backdrop {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            z-index: 500; display: none; align-items: flex-end;
+            backdrop-filter: blur(3px);
+        }
+        #diff-sheet-backdrop.show { display: flex; }
+        #diff-sheet {
+            width: 100%; max-width: 440px; margin: 0 auto;
+            background: var(--surface); border-radius: 20px 20px 0 0;
+            border: 1px solid var(--border); border-bottom: none;
+            padding: 20px 20px 36px;
+            animation: slideUp 0.28s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .diff-sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 18px; }
+        .diff-sheet-game-name {
+            font-family: 'Orbitron', monospace; font-size: 1rem; font-weight: 900;
+            color: var(--text); text-align: center; margin-bottom: 4px;
+        }
+        .diff-sheet-subtitle {
+            font-size: 0.78rem; color: var(--text-muted); text-align: center;
+            margin-bottom: 18px;
+        }
+        .diff-options { display: flex; flex-direction: column; gap: 8px; }
+        .diff-option {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--surface2); border: 1.5px solid var(--border);
+            border-radius: 12px; padding: 12px 16px; cursor: pointer;
+            transition: all 0.15s; touch-action: manipulation;
+        }
+        .diff-option:active { transform: scale(0.98); }
+        .diff-option:hover { border-color: var(--green); background: rgba(0,255,136,0.05); }
+        .diff-option.selected { border-color: var(--green); background: rgba(0,255,136,0.08); }
+        .diff-option-left { display: flex; align-items: center; gap: 12px; }
+        .diff-tier-badge {
+            width: 36px; height: 36px; border-radius: 8px; display: flex;
+            align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+        }
+        .diff-tier-name { font-family: 'Orbitron', monospace; font-size: 0.8rem; font-weight: 700; color: var(--text); }
+        .diff-tier-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
+        .diff-tier-level { font-family: 'Orbitron', monospace; font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
+        .diff-start-btn {
+            width: 100%; margin-top: 14px; padding: 14px; border: none;
+            border-radius: 12px; background: linear-gradient(135deg, #00b366, var(--green));
+            color: #03050a; font-family: 'Orbitron', monospace; font-size: 0.9rem;
+            font-weight: 700; cursor: pointer; letter-spacing: 0.04em;
+            touch-action: manipulation; transition: all 0.15s;
+        }
+        .diff-start-btn:active { transform: scale(0.97); }
     </style>
 </head>
 <body>
-
-<canvas id="bgCanvas"></canvas>
 
 <div class="top-bar" id="topBar" style="display:none;">
     <div class="top-bar-brand">
@@ -324,19 +448,19 @@
     <div class="card" style="padding:16px 16px 10px;">
         <div class="card-title">🎮 Select Game</div>
         <div class="games-grid">
-            <div class="game-btn" onclick="SFX.bleep(); startGame('SPACE')">
+            <div class="game-btn" onclick="SFX.bleep(); showDiffSheet('SPACE')">
                 <div class="game-icon">🚀</div><div class="game-name">Space Defender</div>
             </div>
-            <div class="game-btn" onclick="SFX.bleep(); startGame('SNAKE')">
+            <div class="game-btn" onclick="SFX.bleep(); showDiffSheet('SNAKE')">
                 <div class="game-icon">🐍</div><div class="game-name">Snake</div>
             </div>
-            <div class="game-btn" onclick="SFX.bleep(); startGame('FLAPPY')">
+            <div class="game-btn" onclick="SFX.bleep(); showDiffSheet('FLAPPY')">
                 <div class="game-icon">⚪</div><div class="game-name">Flappy Ball</div>
             </div>
-            <div class="game-btn" onclick="SFX.bleep(); startGame('PONG')">
+            <div class="game-btn" onclick="SFX.bleep(); showDiffSheet('PONG')">
                 <div class="game-icon">🏓</div><div class="game-name">Pong Bricks</div>
             </div>
-            <div class="game-btn" onclick="SFX.bleep(); startGame('TETRIS')">
+            <div class="game-btn" onclick="SFX.bleep(); showDiffSheet('TETRIS')">
                 <div class="game-icon">🧱</div><div class="game-name">Tetris</div>
             </div>
             <div class="game-btn" onclick="SFX.bleep(); startGame('CHESS')">
@@ -360,7 +484,7 @@
         <div class="stat-box">
             <div class="stat-label">Points</div><span id="gameScore" class="stat-val">0</span>
         </div>
-        <div class="stat-box">
+        <div class="stat-box" id="stat-timer-box">
             <div class="stat-label">Time</div><span id="gameTimer" class="stat-val">00:00</span>
         </div>
     </div>
@@ -456,23 +580,104 @@
     </div>
 </div>
 
+<!-- ===== DIFFICULTY BOTTOM SHEET ===== -->
+<div id="diff-sheet-backdrop" onclick="diffSheetClose(event)">
+    <div id="diff-sheet">
+        <div class="diff-sheet-handle"></div>
+        <div class="diff-sheet-game-name" id="diff-sheet-title">🚀 Space Defender</div>
+        <div class="diff-sheet-subtitle">Pilih tahap kesukaran untuk bermula</div>
+        <div class="diff-options">
+            <div class="diff-option selected" id="diff-opt-0" onclick="diffSelect(0)">
+                <div class="diff-option-left">
+                    <div class="diff-tier-badge" style="background:rgba(0,255,136,0.1);">🌱</div>
+                    <div>
+                        <div class="diff-tier-name">Beginner</div>
+                        <div class="diff-tier-desc">Perlahan, sesuai untuk permulaan</div>
+                    </div>
+                </div>
+                <div class="diff-tier-level">LVL 1</div>
+            </div>
+            <div class="diff-option" id="diff-opt-1" onclick="diffSelect(1)">
+                <div class="diff-option-left">
+                    <div class="diff-tier-badge" style="background:rgba(0,229,255,0.1);">⚡</div>
+                    <div>
+                        <div class="diff-tier-name">Easy</div>
+                        <div class="diff-tier-desc">Sedikit cabaran</div>
+                    </div>
+                </div>
+                <div class="diff-tier-level">LVL 4</div>
+            </div>
+            <div class="diff-option" id="diff-opt-2" onclick="diffSelect(2)">
+                <div class="diff-option-left">
+                    <div class="diff-tier-badge" style="background:rgba(255,215,0,0.1);">🔥</div>
+                    <div>
+                        <div class="diff-tier-name">Medium</div>
+                        <div class="diff-tier-desc">Sederhana, perlu fokus</div>
+                    </div>
+                </div>
+                <div class="diff-tier-level">LVL 8</div>
+            </div>
+            <div class="diff-option" id="diff-opt-3" onclick="diffSelect(3)">
+                <div class="diff-option-left">
+                    <div class="diff-tier-badge" style="background:rgba(255,100,0,0.1);">💀</div>
+                    <div>
+                        <div class="diff-tier-name">Hard</div>
+                        <div class="diff-tier-desc">Pantas dan mencabar</div>
+                    </div>
+                </div>
+                <div class="diff-tier-level">LVL 13</div>
+            </div>
+            <div class="diff-option" id="diff-opt-4" onclick="diffSelect(4)">
+                <div class="diff-option-left">
+                    <div class="diff-tier-badge" style="background:rgba(255,34,68,0.1);">👑</div>
+                    <div>
+                        <div class="diff-tier-name">Expert</div>
+                        <div class="diff-tier-desc">Untuk yang berpengalaman</div>
+                    </div>
+                </div>
+                <div class="diff-tier-level">LVL 18</div>
+            </div>
+        </div>
+        <button class="diff-start-btn" onclick="diffConfirm()">▶ MULA PERMAINAN</button>
+    </div>
+</div>
+
+<!-- ===== COMPLIANCE CHECK OVERLAY ===== -->
+<div id="compliance-overlay">
+    <div class="co-badge">⏸ Compliance Check</div>
+    <div class="co-title">TEKAN ARROW INI</div>
+    <div class="co-sub">Permainan dipause setiap 1 minit.<br>Tekan butang yang ditunjukkan untuk sambung.</div>
+
+    <div class="co-arrow-wrap">
+        <div id="co-arrow-symbol">▲</div>
+    </div>
+
+    <div class="co-instruction" id="co-instruction">TEKAN ▲ UNTUK SAMBUNG</div>
+
+    <div class="co-dpad">
+        <!-- Row 1 -->
+        <div></div>
+        <div class="co-key" id="cok-up"    ontouchstart="coPress('UP',event)"    onmousedown="coPress('UP',event)">▲</div>
+        <div></div>
+        <!-- Row 2 -->
+        <div class="co-key" id="cok-left"  ontouchstart="coPress('LEFT',event)"  onmousedown="coPress('LEFT',event)">◄</div>
+        <div class="co-key" id="cok-down"  ontouchstart="coPress('DOWN',event)"  onmousedown="coPress('DOWN',event)">▼</div>
+        <div class="co-key" id="cok-right" ontouchstart="coPress('RIGHT',event)" onmousedown="coPress('RIGHT',event)">►</div>
+    </div>
+
+    <div class="co-timer-wrap">
+        <div class="co-timer-label" id="co-timer-label">10s</div>
+        <div class="co-timer-bar"><div class="co-timer-fill" id="co-timer-fill"></div></div>
+    </div>
+</div>
+
 <script>
-    // ===== BACKGROUND STARS =====
-    const bgCanvas = document.getElementById('bgCanvas');
-    const bgCtx = bgCanvas.getContext('2d');
-    let bgStars = [];
-    for(let i=0; i<100; i++) bgStars.push({x: Math.random()*window.innerWidth, y: Math.random()*window.innerHeight, s: Math.random()*1.5 + 0.5, v: Math.random()*1.5 + 0.2});
-    function drawBg() {
-        bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight;
-        bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-        bgCtx.fillStyle = 'rgba(0, 229, 255, 0.4)';
-        bgStars.forEach(s => {
-            s.y += s.v; if(s.y > bgCanvas.height) { s.y = 0; s.x = Math.random()*bgCanvas.width; }
-            bgCtx.fillRect(s.x, s.y, s.s, s.s);
+    // ===== PWA SERVICE WORKER REGISTRATION =====
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch(()=>{});
         });
-        requestAnimationFrame(drawBg);
     }
-    drawBg();
 
     // ===== AUDIO ENGINE (Web Audio API) =====
     let audioCtx=null; let bgmOsc=null; let bgmGain=null; let bgmStarted=false;
@@ -538,6 +743,164 @@
 
     let lastTick = 0;
     function throttleTick() { if(Date.now() - lastTick > 50) { SFX.tick(); lastTick = Date.now(); } }
+
+    // =====================================================================
+    // DIFFICULTY BOTTOM SHEET
+    // =====================================================================
+    const DIFF_TIERS = [
+        { name: 'Beginner', level: 1  },
+        { name: 'Easy',     level: 4  },
+        { name: 'Medium',   level: 8  },
+        { name: 'Hard',     level: 13 },
+        { name: 'Expert',   level: 18 },
+    ];
+    const GAME_LABELS = { SPACE:'🚀 Space Defender', SNAKE:'🐍 Snake', FLAPPY:'⚪ Flappy Ball', PONG:'🏓 Pong Bricks', TETRIS:'🧱 Tetris' };
+    let diffPendingGame = null;
+    let diffSelectedTier = 0;
+
+    function showDiffSheet(gameName) {
+        diffPendingGame = gameName;
+        diffSelectedTier = 0;
+        document.getElementById('diff-sheet-title').textContent = GAME_LABELS[gameName] || gameName;
+
+        const isTetris = gameName === 'TETRIS';
+        document.querySelector('.diff-sheet-subtitle').textContent = isTetris
+            ? 'Pilih kelajuan jatuh blok (target: 10 lines setiap round)'
+            : 'Pilih tahap kesukaran untuk bermula';
+
+        // Update level labels — Tetris tunjuk speed, lain tunjuk level
+        const labels = isTetris
+            ? ['Sangat Perlahan','Perlahan','Sederhana','Laju','Sangat Laju']
+            : ['LVL 1','LVL 4','LVL 8','LVL 13','LVL 18'];
+        for(let i=0;i<5;i++) {
+            document.getElementById('diff-opt-'+i).querySelector('.diff-tier-level').textContent = labels[i];
+            document.getElementById('diff-opt-'+i).classList.toggle('selected', i===0);
+        }
+        document.getElementById('diff-sheet-backdrop').classList.add('show');
+    }
+
+    function diffSelect(tier) {
+        diffSelectedTier = tier;
+        for(let i=0;i<5;i++) {
+            document.getElementById('diff-opt-'+i).classList.toggle('selected', i===tier);
+        }
+        SFX.bleep();
+    }
+
+    function diffConfirm() {
+        const startLevel = DIFF_TIERS[diffSelectedTier].level;
+        document.getElementById('diff-sheet-backdrop').classList.remove('show');
+        SFX.bleep();
+        // Start game with chosen level
+        startGame(diffPendingGame, startLevel);
+    }
+
+    function diffSheetClose(e) {
+        // Close only if clicking backdrop itself (not the sheet)
+        if(e.target === document.getElementById('diff-sheet-backdrop')) {
+            document.getElementById('diff-sheet-backdrop').classList.remove('show');
+        }
+    }
+
+
+
+    // =====================================================================
+    // COMPLIANCE MONITOR — pause semua games setiap 60 saat
+    // =====================================================================
+    const CO_DIRS   = ['UP','DOWN','LEFT','RIGHT'];
+    const CO_SYMBOL = { UP:'▲', DOWN:'▼', LEFT:'◄', RIGHT:'►' };
+    const CO_NAME   = { UP:'ATAS ▲', DOWN:'BAWAH ▼', LEFT:'KIRI ◄', RIGHT:'KANAN ►' };
+    const CO_TIMEOUT = 10;  // saat untuk respond
+    let coTarget = null, coTimerInterval = null, coSchedule = null, coTimeLeft = 0;
+    let coGameWasRunning = false;
+
+    function coStart() {
+        coStop();
+        coSchedule = setTimeout(coTrigger, 60000);
+    }
+
+    function coStop() {
+        if(coSchedule)      { clearTimeout(coSchedule);   coSchedule = null; }
+        if(coTimerInterval) { clearInterval(coTimerInterval); coTimerInterval = null; }
+    }
+
+    function coTrigger() {
+        if(!activeGame) return;
+        coTarget = CO_DIRS[Math.floor(Math.random() * 4)];
+
+        // Update UI
+        document.getElementById('co-arrow-symbol').textContent = CO_SYMBOL[coTarget];
+        document.getElementById('co-instruction').textContent  = 'TEKAN ' + CO_NAME[coTarget] + ' UNTUK SAMBUNG';
+
+        // Reset semua key states
+        ['up','down','left','right'].forEach(d => {
+            const el = document.getElementById('cok-' + d);
+            if(el) el.className = 'co-key';
+        });
+
+        // Countdown
+        coTimeLeft = CO_TIMEOUT;
+        document.getElementById('co-timer-fill').style.width = '100%';
+        document.getElementById('co-timer-label').textContent = CO_TIMEOUT + 's';
+
+        // Pause game loops
+        coGameWasRunning = !!gameLoop || activeGame === 'SNAKE' || activeGame === 'TETRIS' || activeGame === 'CHESS';
+        if(gameLoop)    { clearInterval(gameLoop); gameLoop = null; }
+        if(snakeTimer)  { clearTimeout(snakeTimer); snakeTimer = null; }
+        if(tetrisTimer) { clearTimeout(tetrisTimer); tetrisTimer = null; }
+        if(chessAnimLoop){ cancelAnimationFrame(chessAnimLoop); chessAnimLoop = null; }
+
+        document.getElementById('compliance-overlay').classList.add('show');
+        SFX.bossWarning();
+
+        coTimerInterval = setInterval(() => {
+            coTimeLeft -= 0.1;
+            const pct = Math.max(0, coTimeLeft / CO_TIMEOUT * 100);
+            document.getElementById('co-timer-fill').style.width = pct + '%';
+            document.getElementById('co-timer-label').textContent = Math.ceil(coTimeLeft) + 's';
+            if(coTimeLeft <= 0) { coTimerDone(); }
+        }, 100);
+    }
+
+    function coTimerDone() {
+        if(coTimerInterval) { clearInterval(coTimerInterval); coTimerInterval = null; }
+        coDismiss();
+    }
+
+    function coPress(dir, e) {
+        if(e) e.preventDefault();
+        if(!coTarget) return;
+        const keyEl = document.getElementById('cok-' + dir.toLowerCase());
+        if(dir === coTarget) {
+            if(keyEl) { keyEl.className = 'co-key correct'; }
+            SFX.levelUp();
+            if(coTimerInterval) { clearInterval(coTimerInterval); coTimerInterval = null; }
+            setTimeout(coDismiss, 400);
+        } else {
+            if(keyEl) {
+                keyEl.className = 'co-key wrong';
+                setTimeout(() => { if(keyEl) keyEl.className = 'co-key'; }, 400);
+            }
+            SFX.playerHit();
+        }
+    }
+
+    function coDismiss() {
+        coStop();
+        coTarget = null;
+        document.getElementById('compliance-overlay').classList.remove('show');
+
+        // Resume game yang sedang berjalan
+        if(activeGame === 'PONG' || activeGame === 'SPACE' || activeGame === 'FLAPPY') loopGame();
+        else if(activeGame === 'SNAKE') startSnakeLoop();
+        else if(activeGame === 'TETRIS') runTetrisLoop();
+        else if(activeGame === 'CHESS') drawChess();
+
+        // Schedule check seterusnya
+        coStart();
+    }
+
+
 
     // ===== CONFIG & STATE =====
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwBvr4PkDMJu7TjwzZHKFE1g2IrP2JYQx1igeTj8et_y6kRZA1dnxIu9ZwVJx1WzueT/exec';
@@ -626,7 +989,7 @@
 
     function startSessionTimer(){if(sessionInterval)return;sessionInterval=setInterval(()=>{totalSeconds++;updateTimerUI();if(totalSeconds>=TARGET_SECONDS){finishSession();}},1000);}
     function stopSessionTimer(){if(sessionInterval){clearInterval(sessionInterval);sessionInterval=null;}}
-    function gotoMenu(){stopGameEngine();stopSessionTimer();updateTimerUI();showScreen('screen-menu');}
+    function gotoMenu(){stopGameFull();stopSessionTimer();updateTimerUI();showScreen('screen-menu');}
     function finishSession(){stopGameEngine();stopSessionTimer();const btn=document.getElementById('btnEndSession');btn.disabled=false;btn.classList.add('unlocked');btn.innerText="✅ End Session";showScreen('screen-menu');}
 
     function hexToRgb(hex){if(!hex)return{r:0,g:0,b:0};const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);return r?{r:parseInt(r[1],16),g:parseInt(r[2],16),b:parseInt(r[3],16)}:{r:0,g:0,b:0};}
@@ -665,6 +1028,14 @@
         gameLoop = null; snakeTimer = null; tetrisTimer = null; chessAnimLoop = null;
         feedbacks = [];
     }
+
+    // Panggil ni bila betul-betul keluar dari game (balik menu / tutup)
+    function stopGameFull(){
+        stopGameEngine();
+        coStop();
+        coTarget = null;
+        document.getElementById('compliance-overlay').classList.remove('show');
+    }
     
     function toggleAutoFire() {
         spaceAutoFire = !spaceAutoFire;
@@ -674,8 +1045,8 @@
         btn.style.borderColor = spaceAutoFire ? "var(--green)" : "var(--border)";
     }
 
-    function startGame(gameName){
-        stopGameEngine(); getAC(); 
+    function startGame(gameName, startLevel){
+        stopGameFull(); getAC(); 
         activeGame=gameName; showScreen('screen-game');
         ctx=canvas.getContext('2d'); ctx.imageSmoothingEnabled=false;
         setupInputListeners();
@@ -685,10 +1056,11 @@
         document.getElementById('boss-bar-wrap').style.display = 'none';
         
         if(gameName==='SPACE') lives = 5;
+        else if(gameName==='SNAKE') lives = 3;
         else if(gameName==='FLAPPY'||gameName==='PONG'||gameName==='TETRIS') lives = 3;
         
-        // HIDE LIVES FOR CHESS & SNAKE
-        if(gameName==='CHESS' || gameName==='SNAKE') document.getElementById('lives-bar').style.display = 'none';
+        // HIDE LIVES FOR CHESS ONLY
+        if(gameName==='CHESS') document.getElementById('lives-bar').style.display = 'none';
         else document.getElementById('lives-bar').style.display = 'flex';
 
         if(activeGame==='SNAKE' || activeGame==='SPACE'){
@@ -712,8 +1084,9 @@
         }
         if(activeGame==='CHESS') { document.getElementById('ctrl-chess').classList.add('show'); }
         
-        currentLevel = 1; levelScore = 0; totalScore = 0;
-        updateLevelUI(); startSessionTimer();
+        currentLevel = startLevel || 1;
+        levelScore = 0; totalScore = 0;
+        updateLevelUI(); startSessionTimer(); coStart();
         
         if(activeGame==='CHESS') { initChess(); } 
         else if(activeGame==='SNAKE') { initSnake(); startSnakeLoop(); }
@@ -754,6 +1127,11 @@
         uniSlider.addEventListener('touchmove', e=>{ e.stopPropagation(); handleUniSlider(uniSlider.value); }, {passive: true});
 
         document.addEventListener('keydown',(e)=>{
+            // Compliance check intercept — kena jawab dulu sebelum boleh main
+            if(coTarget) {
+                const map = {'ArrowUp':'UP','ArrowDown':'DOWN','ArrowLeft':'LEFT','ArrowRight':'RIGHT'};
+                if(map[e.key]) { coPress(map[e.key], e); e.preventDefault(); return; }
+            }
             if(activeGame==='SNAKE'){if(e.key==='ArrowUp'||e.key==='w')inputSnake('UP');if(e.key==='ArrowDown'||e.key==='s')inputSnake('DOWN');if(e.key==='ArrowLeft'||e.key==='a')inputSnake('LEFT');if(e.key==='ArrowRight'||e.key==='d')inputSnake('RIGHT');}
             if(activeGame==='TETRIS'){if(e.key==='ArrowLeft')inputTetris(-1);if(e.key==='ArrowRight')inputTetris(1);if(e.key==='ArrowUp')rotateTetris();if(e.key==='ArrowDown')inputTetris('DOWN');}
             if(activeGame==='FLAPPY'&&(e.code==='Space'||e.code==='ArrowUp')){flapBird();e.preventDefault();}
@@ -806,7 +1184,7 @@
     function updateLevelUI(){ document.getElementById('gameLevel').innerText=currentLevel; document.getElementById('gameScore').innerText=totalScore; updateLivesUI(); }
     
     function updateLivesUI() {
-        let maxLives = (activeGame==='FLAPPY'||activeGame==='PONG'||activeGame==='TETRIS') ? 3 : 5;
+        let maxLives = (activeGame==='FLAPPY'||activeGame==='PONG'||activeGame==='TETRIS'||activeGame==='SNAKE') ? 3 : 5;
         for(let i=1; i<=5; i++){
             const el = document.getElementById('h'+i);
             if(el) {
@@ -959,10 +1337,17 @@
     }
 
     function snakeDie(){
-        // TANPA POTONG NYAWA: Hanya tolak 10 point dan terus main semula tahap tersebut
-        SFX.playerHit();
-        totalScore = Math.max(0, totalScore - 10); 
-        updateLevelUI();
+        lives--; updateLivesUI(); SFX.playerHit();
+        if(lives <= 0) {
+            showFailOverlay();
+            totalScore = Math.max(0, totalScore - 50);
+            updateLevelUI();
+            lives = 3;
+            currentLevel = Math.max(1, currentLevel - 1);
+        } else {
+            totalScore = Math.max(0, totalScore - 10);
+            updateLevelUI();
+        }
         initSnake();
     }
 
@@ -1199,14 +1584,20 @@
     // =====================================================================
     // TETRIS (WITH PROGRESSION & LIVES)
     // =====================================================================
+    // Tetris: speed tier dari difficulty sheet jadi base speed
+    // Tier → startLevel: Beginner=1, Easy=4, Medium=8, Hard=13, Expert=18
+    // Speed ms: startLevel maps to initial delay, naik laju tiap round
+    const TETRIS_SPEED_MAP = { 1:750, 2:720, 3:690, 4:620, 5:580, 6:550, 7:510, 8:450, 9:410, 10:380, 11:350, 12:320, 13:270, 14:250, 15:230, 16:200, 17:170, 18:130, 19:100, 20:80 };
+    let tetrisBaseDelay = 750; // akan di-set masa initTetris
     const tRows=20,tCols=10,tSize=20,tOffsetX=(360-(10*20))/2;const shapes=[[[1,1,1,1]],[[1,1,1],[0,1,0]],[[1,1],[1,1]],[[1,1,0],[0,1,1]]];let tGrid=[],tPiece=null,tLineFlash=[];
     
     function initTetris(){
-        tGrid=[];for(let r=0;r<tRows;r++)tGrid[r]=new Array(tCols).fill(0); tLineFlash=[];
+        tGrid=[];for(let r=0;r<tRows;r++)tGrid[r]=new Array(tCols).fill(0); tLineFlash=[]; levelScore=0;
+        tetrisBaseDelay = TETRIS_SPEED_MAP[Math.min(currentLevel, 20)] || 80;
         document.getElementById('boss-bar-wrap').style.display='block'; document.getElementById('boss-name').textContent = "LINES"; updateTetrisProgress(); spawnTetrisPiece(); if(tetrisTimer)clearTimeout(tetrisTimer);runTetrisLoop();
     }
     
-    function updateTetrisProgress() { let target = 5 + (currentLevel * 5); let pct = levelScore / target; document.getElementById('boss-bar-fill').style.width = Math.min(100, pct*100) + '%'; document.getElementById('boss-hp-txt').textContent = levelScore + " / " + target; }
+    function updateTetrisProgress() { let pct = levelScore / 10; document.getElementById('boss-bar-fill').style.width = Math.min(100, pct*100) + '%'; document.getElementById('boss-hp-txt').textContent = levelScore + " / 10"; }
 
     function spawnTetrisPiece(){
         let typeId=Math.floor(Math.random()*shapes.length);tPiece={shape:shapes[typeId],x:3,y:0};
@@ -1220,7 +1611,7 @@
     function runTetrisLoop(){
         if(activeGame!=='TETRIS')return;
         if(!gamePausedForOverlay) { tPiece.y++; if(collide(tGrid,tPiece)){ tPiece.y--;mergeGrid(tGrid,tPiece); playTone(120,'square',0.06,0.12); sweepTetris();spawnTetrisPiece(); } }
-        drawTetris(); let delay=Math.max(30, 800-(currentLevel*40)); tetrisTimer=setTimeout(runTetrisLoop,delay);
+        drawTetris(); let delay = Math.max(60, tetrisBaseDelay - (currentLevel - 1) * 30); tetrisTimer=setTimeout(runTetrisLoop,delay);
     }
     
     function inputTetris(dir){if(!tPiece||gamePausedForOverlay)return;if(dir==='DOWN'){tPiece.y++;if(collide(tGrid,tPiece))tPiece.y--}else{let oldX=tPiece.x;tPiece.x+=dir;if(collide(tGrid,tPiece))tPiece.x=oldX}SFX.flap();drawTetris()}
@@ -1230,17 +1621,31 @@
     
     function sweepTetris(){
         let lines=0; outer:for(let r=tRows-1;r>=0;r--){ for(let c=0;c<tCols;c++){if(tGrid[r][c]===0)continue outer} tLineFlash.push({y:r*tSize, life:8}); tGrid.splice(r,1);tGrid.unshift(new Array(tCols).fill(0)); lines++;r++ }
-        if(lines>0){ totalScore+=lines*10; levelScore+=lines; SFX.eat(); if(lines>=2)spawnFeedback("🔥 COMBO x"+lines,180,200); updateLevelUI(); updateTetrisProgress(); let target = 5 + (currentLevel * 5); if(levelScore >= target) { currentLevel++; levelScore = 0; updateLevelUI(); updateTetrisProgress(); showLevelOverlay("LEVEL UP!", "Speed Increased!"); } }
+        if(lines>0){ totalScore+=lines*10; levelScore+=lines; SFX.eat(); if(lines>=2)spawnFeedback("🔥 COMBO x"+lines,180,200); updateLevelUI(); updateTetrisProgress(); if(levelScore >= 10) { currentLevel++; levelScore = 0; tetrisBaseDelay = Math.max(60, tetrisBaseDelay - 30); updateLevelUI(); updateTetrisProgress(); showLevelOverlay("ROUND " + currentLevel + "!", "Makin laju! 🔥"); } }
     }
     
     function drawTetris(){
-        clearCanvas(); ctx.globalCompositeOperation = 'screen'; ctx.strokeStyle="rgba(255,255,255,0.1)"; ctx.strokeRect(tOffsetX, 0, tCols*tSize, tRows*tSize);
-        ctx.fillStyle = appConfig.renderRight; for(let r=0;r<tRows;r++){ for(let c=0;c<tCols;c++){ if(tGrid[r][c]!==0) ctx.fillRect(tOffsetX+c*tSize, r*tSize, tSize-1, tSize-1); } }
+        clearCanvas(); ctx.globalCompositeOperation = 'screen';
+        // Border grid putih jelas
+        ctx.strokeStyle="rgba(255,255,255,0.25)"; ctx.lineWidth=1; ctx.strokeRect(tOffsetX, 0, tCols*tSize, tRows*tSize);
+        // Grid lines dalam
+        ctx.strokeStyle="rgba(255,255,255,0.07)"; ctx.lineWidth=0.5;
+        for(let r=1;r<tRows;r++){ ctx.beginPath(); ctx.moveTo(tOffsetX,r*tSize); ctx.lineTo(tOffsetX+tCols*tSize,r*tSize); ctx.stroke(); }
+        for(let c=1;c<tCols;c++){ ctx.beginPath(); ctx.moveTo(tOffsetX+c*tSize,0); ctx.lineTo(tOffsetX+c*tSize,tRows*tSize); ctx.stroke(); }
+        ctx.lineWidth=1;
+        // Blok yang dah letak — plain, tanpa border
+        ctx.fillStyle = appConfig.renderRight;
+        for(let r=0;r<tRows;r++){ for(let c=0;c<tCols;c++){ if(tGrid[r][c]!==0){
+            ctx.fillRect(tOffsetX+c*tSize+1, r*tSize+1, tSize-2, tSize-2);
+        } } }
         for(let i=tLineFlash.length-1;i>=0;i--){ let fl=tLineFlash[i]; ctx.globalAlpha = fl.life/8; ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fillRect(tOffsetX, fl.y, tCols*tSize, tSize); fl.life--; if(fl.life<=0) tLineFlash.splice(i,1); } ctx.globalAlpha=1;
         if(tPiece){
             let ghostShape = tPiece.shape.map(row=>[...row]); let ghost = {x: tPiece.x, y: tPiece.y, shape: ghostShape}; while(!collide(tGrid, ghost)) ghost.y++; ghost.y--; ctx.fillStyle="rgba(255,255,255,0.15)";
             for(let r=0;r<ghost.shape.length;r++){ for(let c=0;c<ghost.shape[r].length;c++){ if(ghost.shape[r][c]!==0) ctx.fillRect(tOffsetX+(ghost.x+c)*tSize, (ghost.y+r)*tSize, tSize-1, tSize-1); } }
-            ctx.fillStyle=appConfig.renderLeft; for(let r=0;r<tPiece.shape.length;r++){ for(let c=0;c<tPiece.shape[r].length;c++){ if(tPiece.shape[r][c]!==0) ctx.fillRect(tOffsetX+(tPiece.x+c)*tSize, (tPiece.y+r)*tSize, tSize-1, tSize-1); } }
+            ctx.fillStyle=appConfig.renderLeft;
+            for(let r=0;r<tPiece.shape.length;r++){ for(let c=0;c<tPiece.shape[r].length;c++){ if(tPiece.shape[r][c]!==0){
+                ctx.fillRect(tOffsetX+(tPiece.x+c)*tSize+1, (tPiece.y+r)*tSize+1, tSize-2, tSize-2);
+            } } }
         }
         ctx.globalCompositeOperation = 'source-over'; drawFeedback();
     }
@@ -1288,17 +1693,28 @@
     // ===== BACKGROUND & LOCK SCREEN HANDLER =====
     document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
-            // Berhenti masa dan game bila tutup phone/tab
-            stopGameEngine();
+            stopGameFull();
             stopSessionTimer();
         } else {
-            // Mula balik hanya kalau user masih kat dalam skrin game
             if (document.getElementById('screen-game').style.display === 'flex' && activeGame) {
                 startSessionTimer();
                 if(activeGame==='PONG'||activeGame==='SPACE'||activeGame==='FLAPPY') loopGame();
                 if(activeGame==='SNAKE') startSnakeLoop();
                 if(activeGame==='TETRIS') runTetrisLoop();
+                coStart(); // resume compliance monitor
             }
+        }
+    });
+
+    // Triple-tap pada kotak "Time" untuk test compliance overlay (debug)
+    let timerTapCount = 0, timerTapTimer = null;
+    document.getElementById('stat-timer-box').addEventListener('click', () => {
+        timerTapCount++;
+        if(timerTapTimer) clearTimeout(timerTapTimer);
+        timerTapTimer = setTimeout(() => { timerTapCount = 0; }, 800);
+        if(timerTapCount >= 3) {
+            timerTapCount = 0;
+            if(activeGame && !coTarget) { coStop(); coTrigger(); }
         }
     });
 
