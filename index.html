@@ -419,7 +419,7 @@
     </div>
 
     <div style="width:100%;">
-        <input type="text" id="pID" placeholder="Enter Participant ID (Contoh: P01)">
+        <input type="text" id="pID" placeholder="Enter Participant ID (Contoh: P001)">
         <button class="btn btn-primary" onclick="startOfficialSession()">🚀 Start Official Session</button>
         <button class="btn" style="background: linear-gradient(135deg, #aa0011, var(--red-eye)); color: #fff; margin-top:12px; box-shadow: 0 4px 20px rgba(255,34,68,0.3);" onclick="startTestSession()">🛠️ Start Trial / Testing</button>
         <button id="btn-install" onclick="installApp()" style="display:block; width:100%; margin-top:12px; padding:13px; border-radius:12px; border:1.5px solid var(--cyan-eye); background:transparent; color:var(--cyan-eye); font-family:'Orbitron',monospace; font-size:0.8rem; font-weight:700; cursor:pointer; letter-spacing:0.05em;">INSTALL APP TO PHONE</button>
@@ -1103,7 +1103,7 @@
         const pID = document.getElementById('pID').value.trim();
         if (!pID) { alert("Please enter Participant ID!"); return; }
         if (!pID.toUpperCase().startsWith('P')) {
-            alert("Error: Participant ID must start with 'P' (e.g. P01, P12).");
+            alert("Error: Participant ID must start with 'P' (e.g. P001, P012). Ensure 3 digits");
             return;
         }
         isTestMode = false; SFX.bleep(); gotoSetup();
