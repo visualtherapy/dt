@@ -1010,6 +1010,30 @@
 
 
 
+    // ===== URL PREFILL: Auto-fill & bypass to calibration if ?pid= present =====
+    (function() {
+        const params = new URLSearchParams(window.location.search);
+        const prefillPID = params.get('pid');
+        if (prefillPID) {
+            window.addEventListener('DOMContentLoaded', function() {
+                const input = document.getElementById('pID');
+                if (input) {
+                    input.value = prefillPID.toUpperCase();
+                    input.readOnly = true;
+                    input.style.opacity = '0.6';
+                    input.style.cursor = 'not-allowed';
+                    input.title = 'Participant ID has been assigned: ' + prefillPID.toUpperCase();
+                }
+                // Auto-bypass login screen -> go straight to calibration
+                isTestMode = false;
+                sessionStartTime = new Date().toLocaleTimeString('en-US', { hour12: false });
+                showScreen('screen-setup');
+                updateConfig();
+            });
+        }
+    })();
+    // ===== END URL PREFILL =====
+
     // ===== CONFIG & STATE =====
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwBvr4PkDMJu7TjwzZHKFE1g2IrP2JYQx1igeTj8et_y6kRZA1dnxIu9ZwVJx1WzueT/exec';
     const TARGET_SECONDS = 10;
